@@ -6,30 +6,29 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    [Header("< Main Scene Group >")]
-    public GameObject MainSceneGroup;                       // 메인씬 그룹
-    bool isMain = true;                                     // 현재 메인 씬인가?
-    bool isSub = false;                                     // 현재 서브 씬인가?
-
-    [Header("< Sub Scene Group >")]
+    public GameObject MainSceneGroup;                               // 메인씬 그룹
     public GameObject SubSceneGroup;                                // 서브 씬 그룹
-    public TMP_Text HeadCountUI;                                    // 인원 수 숫자
+
+    public TMP_Text HeadCountUI;                                    // 인원수 숫자
 
     public GameObject[] Player = new GameObject[6];                 // 플레이어 창 배열
-    public GameObject[] PlayerColorBtnArr = new GameObject[6];         // 플레이어 창의 색상 배열
+    public GameObject[] PlayerColorBtnArr = new GameObject[6];      // 플레이어 창의 색상 배열
 
-    [Header("< Color Select Group >")]
-    public GameObject ColorSelectUI;                        // 색상창
-    public GameObject[] ColorBtnArr = new GameObject[10];   // 색상창 색상 버튼 배열
-
-    int HeadCount = 2;                                      // 현재 인원 수
+    public GameObject ColorSelectUI;                                // 색상창
+    public GameObject[] ColorBtnArr = new GameObject[10];           // 색상창 색상 버튼 배열
 
     GameObject PlayerColor;                                 // 클릭한 플레이어 창의 색상
     Image PlayerColorImage;                                 // 클릭한 플레이어 창의 색상 이미지
-                                                            
+
+    int HeadCount = 2;                                      // 현재 인원 수
+
     int CurrentPlayerNumber;                                // 현재 색상 변경 중인 플레이어 번호
     int CurrentColorBtn;                                    // 현재 누른 색상창의 색상 버튼
     int[] ColorArr = { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0 };      // 색상 확인 배열
+
+    bool isMain = true;                                     // 현재 메인 씬인가?
+    bool isSub = false;                                     // 현재 서브 씬인가?
+    bool isColorChanging = false;                           // 현재 플레이어 색상 변경 중인가?
 
     void Awake()
     {
@@ -148,9 +147,19 @@ public class GameManager : MonoBehaviour
     // 색상창 띄우기
     public void ColorSelectOn()
     {
-        ColorSelectUI.SetActive(true);
-        PlayerColor = EventSystem.current.currentSelectedGameObject;
-        CurrentPlayerNumber = Array.IndexOf(PlayerColorBtnArr, PlayerColor) + 1;
+        if(!isColorChanging)
+        {
+            ColorSelectUI.SetActive(true);
+            PlayerColor = EventSystem.current.currentSelectedGameObject;
+            CurrentPlayerNumber = Array.IndexOf(PlayerColorBtnArr, PlayerColor) + 1;
+
+            isColorChanging = true;
+        }
+        else
+        {
+            ColorSelectUI.SetActive(false);
+            isColorChanging = false;
+        }
     }
 
     // 색상창 색상 선택
@@ -218,6 +227,8 @@ public class GameManager : MonoBehaviour
 
             ColorArr[CurrentColorBtn] = CurrentPlayerNumber;
             ColorBtnArr[CurrentColorBtn].transform.GetChild(0).gameObject.SetActive(true);
+
+            isColorChanging = false;
 
             ColorSelectUI.SetActive(false);
         }
