@@ -15,20 +15,20 @@ public class GameManager : MonoBehaviour
     public GameObject SubSceneGroup;                                // 서브 씬 그룹
     public TMP_Text HeadCountUI;                                    // 인원 수 숫자
 
-    public GameObject[] Player = new GameObject[6];                 // 플레이어 창
-    public GameObject[] PlayerColorArr = new GameObject[6];         // 플레이어 창 색상 버튼
+    public GameObject[] Player = new GameObject[6];                 // 플레이어 창 배열
+    public GameObject[] PlayerColorBtnArr = new GameObject[6];         // 플레이어 창의 색상 배열
 
     [Header("< Color Select Group >")]
-    public GameObject ColorSelectUI;                        // 색상 선택 창
-    public GameObject[] ColorButton = new GameObject[10];   // 색상 선택 버튼
+    public GameObject ColorSelectUI;                        // 색상창
+    public GameObject[] ColorBtnArr = new GameObject[10];   // 색상창 색상 버튼 배열
 
     int HeadCount = 2;                                      // 현재 인원 수
 
-    GameObject PlayerColor;                                 // 클릭한 플레이어 색상
-    Image PlayerColorImage;                                 // 클릭한 플레이어 색상 이미지
-                                                            // 
-    int CurrentColor;                                       // 현재 색상 변경 중인 플레이어
-    int CurrentColorBtn;                                    // 현재 누른 색상 선택 창의 색상 버튼
+    GameObject PlayerColor;                                 // 클릭한 플레이어 창의 색상
+    Image PlayerColorImage;                                 // 클릭한 플레이어 창의 색상 이미지
+                                                            
+    int CurrentPlayerNumber;                                // 현재 색상 변경 중인 플레이어 번호
+    int CurrentColorBtn;                                    // 현재 누른 색상창의 색상 버튼
     int[] ColorArr = { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0 };      // 색상 확인 배열
 
     void Awake()
@@ -39,19 +39,18 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        // 메인씬 -> 서브씬
         if (Input.anyKeyDown && isMain)
         {
-            // 게임 시작
             isMain = false;
             isSub = true;
 
-            // 메인 씬 그룹 비활성화, 서브 씬 그룹 활성화(색상창 UI 제외)
             MainSceneGroup.SetActive(false);
             SubSceneGroup.SetActive(true);
             ColorSelectUI.SetActive(false);
         }
 
-        // 서브 씬 : 색상 선택 창 없을 때 뒤로가기
+        // 서브 씬 -> 메인씬
         if (Input.GetKeyDown(KeyCode.Escape) && isSub && !ColorSelectUI.activeSelf)
         {
             isMain = true;
@@ -61,7 +60,7 @@ public class GameManager : MonoBehaviour
             SubSceneGroup.SetActive(false);
         }
 
-        // 서브 씬 : 색상 선택 창 있을 때 뒤로가기
+        // 서브 씬 색상창 닫기
         if (Input.GetKeyDown(KeyCode.Escape) && isSub && ColorSelectUI.activeSelf)
         {
             ColorSelectUI.SetActive(false);
@@ -79,7 +78,7 @@ public class GameManager : MonoBehaviour
                 {
                     Image AddPlayerColorImage;
                     ColorArr[i] = HeadCount + 1;
-                    AddPlayerColorImage = PlayerColorArr[HeadCount].GetComponent<Image>();
+                    AddPlayerColorImage = PlayerColorBtnArr[HeadCount].GetComponent<Image>();
                     switch (i)
                     {
                         case 0:
@@ -113,19 +112,10 @@ public class GameManager : MonoBehaviour
                             AddPlayerColorImage.color = new Color32(255, 255, 255, 255);
                             break;
                     }
-                    break;
-                }
-            }
 
-            for (int i = 0; i < 10; i++)
-            {
-                if (ColorArr[i] != 0)
-                {
-                    ColorButton[i].transform.GetChild(0).gameObject.SetActive(true);
-                }
-                else if (ColorArr[i] == 0)
-                {
-                    ColorButton[i].transform.GetChild(0).gameObject.SetActive(false);
+                    ColorBtnArr[i].transform.GetChild(0).gameObject.SetActive(true);
+
+                    break;
                 }
             }
 
@@ -144,19 +134,8 @@ public class GameManager : MonoBehaviour
                 if (ColorArr[i] == HeadCount)
                 {
                     ColorArr[i] = 0;
+                    ColorBtnArr[i].transform.GetChild(0).gameObject.SetActive(false);
                     break;
-                }
-            }
-
-            for (int i = 0; i < 10; i++)
-            {
-                if (ColorArr[i] != 0)
-                {
-                    ColorButton[i].transform.GetChild(0).gameObject.SetActive(true);
-                }
-                else if (ColorArr[i] == 0)
-                {
-                    ColorButton[i].transform.GetChild(0).gameObject.SetActive(false);
                 }
             }
 
@@ -166,29 +145,33 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // 색상창 띄우기
     public void ColorSelectOn()
     {
         ColorSelectUI.SetActive(true);
         PlayerColor = EventSystem.current.currentSelectedGameObject;
-        CurrentColor = Array.IndexOf(PlayerColorArr, PlayerColor) + 1;
+        CurrentPlayerNumber = Array.IndexOf(PlayerColorBtnArr, PlayerColor) + 1;
     }
 
+    // 색상창 색상 선택
     public void ColorSelect()
     {
         GameObject SelectColor = EventSystem.current.currentSelectedGameObject;
-        CurrentColorBtn = Array.IndexOf(ColorButton, SelectColor);
+        CurrentColorBtn = Array.IndexOf(ColorBtnArr, SelectColor);
         PlayerColorImage = PlayerColor.GetComponent<Image>();
 
         if (ColorArr[CurrentColorBtn] == 0)
         {
             for (int i = 0; i < 10; i++)
             {
-                if (ColorArr[i] == CurrentColor)
+                if (ColorArr[i] == CurrentPlayerNumber)
                 {
                     ColorArr[i] = 0;
+                    ColorBtnArr[i].transform.GetChild(0).gameObject.SetActive(false);
                     break;
                 }
             }
+
             switch (CurrentColorBtn)
             {
                 case 0:
@@ -222,24 +205,25 @@ public class GameManager : MonoBehaviour
                     PlayerColorImage.color = new Color32(255, 255, 255, 255);
                     break;
             }
-            ColorArr[CurrentColorBtn] = CurrentColor;
 
-            for (int i = 0; i < 10; i++)
+            for(int i = 0; i < 10; i++)
             {
-                if (ColorArr[i] != 0)
+                if (ColorArr[i] == CurrentPlayerNumber)
                 {
-                    ColorButton[i].transform.GetChild(0).gameObject.SetActive(true);
-                }
-                else if (ColorArr[i] == 0)
-                {
-                    ColorButton[i].transform.GetChild(0).gameObject.SetActive(false);
+                    ColorArr[i] = 0;
+                    ColorBtnArr[i].transform.GetChild(0).gameObject.SetActive(false);
+                    Debug.Log(i);
                 }
             }
+
+            ColorArr[CurrentColorBtn] = CurrentPlayerNumber;
+            ColorBtnArr[CurrentColorBtn].transform.GetChild(0).gameObject.SetActive(true);
 
             ColorSelectUI.SetActive(false);
         }
     }
 
+    // 게임 시작 버튼
     public void GameStart()
     {
         isSub = false;

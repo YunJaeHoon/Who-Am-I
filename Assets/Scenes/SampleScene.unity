@@ -8182,7 +8182,7 @@ MonoBehaviour:
   - {fileID: 155654819}
   - {fileID: 1345486030}
   - {fileID: 478911101}
-  PlayerColorArr:
+  PlayerColorBtnArr:
   - {fileID: 22456644}
   - {fileID: 136769065}
   - {fileID: 1047594359}
@@ -8190,7 +8190,7 @@ MonoBehaviour:
   - {fileID: 1318593470}
   - {fileID: 109259731}
   ColorSelectUI: {fileID: 478118059}
-  ColorButton:
+  ColorBtnArr:
   - {fileID: 2041249785}
   - {fileID: 1087539741}
   - {fileID: 1872901307}
