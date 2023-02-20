@@ -57,7 +57,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
-  m_Name: TMONBlack SDF
+  m_Name: TMONBlack SDF 1
   m_EditorClassIdentifier: 
   hashCode: -1784800018
   material: {fileID: 1160575718517483796}
