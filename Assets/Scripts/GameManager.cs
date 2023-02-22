@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -385,7 +386,7 @@ public class GameManager : MonoBehaviour
         { "아인슈타인", "ㅇㅇㅅㅌㅇ" },
     };
 
-    public Transform BackgounrdGroup;                               // 배경 축적 폴더
+    public Transform BackgroundGroup;                               // 배경 축적 폴더
     public GameObject Smog;                                         // 버튼 차단 스모그
 
     public GameObject Background;                                   // 메인화면 배경
@@ -408,6 +409,17 @@ public class GameManager : MonoBehaviour
     public TMP_Text ForgetWarning;                                  // 뭐더라 주의사항
     public TMP_Text ForgetWord;                                     // 뭐더라 제시어
 
+    // 메모장 오브젝트
+    public GameObject MemoGroup;                                    // 메모장 그룹
+    public TMP_InputField Memo;                                     // 메모장
+    string[] PlayerMemo = new string[6];                            // 플레이어 메모 배열
+
+    // 일시정지 오브젝트
+    public GameObject StopGroup;                                    // 일시정지 그룹
+
+    // 게임종료 오브젝트
+    public GameObject EndGroup;                                     // 게임종료 그룹
+
     public TMP_Text HeadCountUI;                                    // 인원수 숫자
     public TMP_Text NicknameTitle;                                  // 닉네임 + "제시어"
     public TMP_Text Warning;                                        // 닉네임 + "님을 제외한 플레이어만 확인하세요"
@@ -426,24 +438,24 @@ public class GameManager : MonoBehaviour
     public GameObject ColorSelectUI;                                // 색상창
     public GameObject[] ColorBtnArr = new GameObject[10];           // 색상창 색상 버튼 배열
 
-    GameObject PlayerColor;                                 // 클릭한 플레이어 창의 색상
-    Image PlayerColorImage;                                 // 클릭한 플레이어 창의 색상 이미지
+    GameObject PlayerColor;                                         // 클릭한 플레이어 창의 색상
+    Image PlayerColorImage;                                         // 클릭한 플레이어 창의 색상 이미지
 
-    int HeadCount = 2;                                      // 현재 인원 수
+    int HeadCount = 2;                                              // 현재 인원 수
 
-    int CurrentPlayerNumber;                                // 현재 색상 변경 중인 플레이어 번호
-    int CurrentColorBtn;                                    // 현재 누른 색상창의 색상 버튼
-    int[] ColorArr = { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0 };      // 색상 확인 배열
-    int Who = 0;                                            // 플레이어 차례
-    int Round = 1;                                          // 게임 라운드
+    int CurrentPlayerNumber;                                        // 현재 색상 변경 중인 플레이어 번호
+    int CurrentColorBtn;                                            // 현재 누른 색상창의 색상 버튼
+    int[] ColorArr = { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0 };              // 색상 확인 배열
+    int Who = 0;                                                    // 플레이어 차례
+    int Round = 1;                                                  // 게임 라운드
 
-    bool isMain = true;                                     // 현재 메인 씬인가?
-    bool isSub = false;                                     // 현재 서브 씬인가?
-    bool isColorChanging = false;                           // 현재 플레이어 색상 변경 중인가?
+    bool isMain = true;                                             // 현재 메인 씬인가?
+    bool isSub = false;                                             // 현재 서브 씬인가?
+    bool isColorChanging = false;                                   // 현재 플레이어 색상 변경 중인가?
 
-    List<GameObject> Backgrounds = new List<GameObject>();        // 플레이어 배경 리스트
-    List<String> Words = new List<String>();                      // 플레이어 제시어 리스트
-    List<String> Nickname = new List<String>();                   // 플레이어 닉네임 리스트
+    List<GameObject> Backgrounds = new List<GameObject>();          // 플레이어 배경 리스트
+    List<String> Words = new List<String>();                        // 플레이어 제시어 리스트
+    List<String> Nickname = new List<String>();                     // 플레이어 닉네임 리스트
 
     void Awake()
     {
@@ -467,11 +479,7 @@ public class GameManager : MonoBehaviour
         // 서브 씬 -> 메인씬
         if (Input.GetKeyDown(KeyCode.Escape) && isSub && !ColorSelectUI.activeSelf)
         {
-            isMain = true;
-            isSub = false;
-
-            MainSceneGroup.SetActive(true);
-            SubSceneGroup.SetActive(false);
+            GoMain();
         }
 
         // 서브 씬 색상창 닫기
@@ -662,7 +670,7 @@ public class GameManager : MonoBehaviour
         {
             // 플레이어 배경 세팅
             GameObject background_obj;
-            background_obj = Instantiate(PlayerBackground[Array.IndexOf(ColorArr, i)],BackgounrdGroup);
+            background_obj = Instantiate(PlayerBackground[Array.IndexOf(ColorArr, i)],BackgroundGroup);
             Backgrounds.Add(background_obj);
             Backgrounds[i-1].SetActive(false);
 
@@ -759,11 +767,58 @@ public class GameManager : MonoBehaviour
         Smog.SetActive(true);
     }
 
+    // 메모장 버튼
+    public void ShowMemoGroup()
+    {
+        MemoGroup.SetActive(true);
+        Memo.text = PlayerMemo[Who];
+
+        Smog.SetActive(true);
+    }
+
+    // 일시정지 버튼
+    public void ShowStopGroup()
+    {
+        StopGroup.SetActive(true);
+
+        Smog.SetActive(true);
+    }
+
+    // 메인화면으로
+    public void GoMain()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    // 게임 종료
+    public void EndGame()
+    {
+        Application.Quit();
+    }
+
+    // 메모 저장
+    public void SaveMemo()
+    {
+        PlayerMemo[Who] = Memo.text;
+    }
+
     // 창 닫기 버튼
     public void DownGroup(GameObject obj)
     {
         obj.SetActive(false);
         Smog.SetActive(false);
+    }
+
+    // 게임 종료 오브젝트 열기 버튼
+    public void EndGroupUpBtn()
+    {
+        EndGroup.SetActive(true);
+    }
+
+    // 게임 종료 오브젝트 닫기 버튼
+    public void EndGroupDownBtn()
+    {
+        EndGroup.SetActive(false);
     }
 
     // 뭐더라 제시어 확인 버튼
