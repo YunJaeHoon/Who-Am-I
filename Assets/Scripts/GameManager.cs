@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -414,11 +415,12 @@ public class GameManager : MonoBehaviour
     public TMP_InputField Memo;                                     // 메모장
     string[] PlayerMemo = new string[6];                            // 플레이어 메모 배열
 
-    // 일시정지 오브젝트
-    public GameObject StopGroup;                                    // 일시정지 그룹
-
-    // 게임종료 오브젝트
-    public GameObject EndGroup;                                     // 게임종료 그룹
+    // 도전 오브젝트
+    public TMP_InputField Challenge;                                // 도전 입력
+    public TMP_Text CountDown;                                      // 카운트다운
+    public TMP_Text Failure_text;                                   // 실패 대사
+    public GameObject CountDownGroup;                               // 카운트다운 그룹
+    public GameObject FailureGroup;                                 // 실패 그룹
 
     public TMP_Text HeadCountUI;                                    // 인원수 숫자
     public TMP_Text NicknameTitle;                                  // 닉네임 + "제시어"
@@ -452,6 +454,7 @@ public class GameManager : MonoBehaviour
     bool isMain = true;                                             // 현재 메인 씬인가?
     bool isSub = false;                                             // 현재 서브 씬인가?
     bool isColorChanging = false;                                   // 현재 플레이어 색상 변경 중인가?
+    bool isCorrect = false;                                         // 도전 성공했는가?
 
     List<GameObject> Backgrounds = new List<GameObject>();          // 플레이어 배경 리스트
     List<String> Words = new List<String>();                        // 플레이어 제시어 리스트
@@ -487,6 +490,33 @@ public class GameManager : MonoBehaviour
         {
             ColorSelectUI.SetActive(false);
         }
+    }
+
+    // 창 띄우기 함수 (스모그랑)
+    public void ShowWithSmog(GameObject obj)
+    {
+        obj.SetActive(true);
+
+        Smog.SetActive(true);
+    }
+
+    // 창 띄우기 함수
+    public void Show(GameObject obj)
+    {
+        obj.SetActive(true);
+    }
+
+    // 창 닫기 함수 (스모그랑)
+    public void DownWithSmog(GameObject obj)
+    {
+        obj.SetActive(false);
+        Smog.SetActive(false);
+    }
+
+    // 창 닫기 함수
+    public void Down(GameObject obj)
+    {
+        obj.SetActive(false);
     }
 
     // > 버튼
@@ -776,14 +806,6 @@ public class GameManager : MonoBehaviour
         Smog.SetActive(true);
     }
 
-    // 일시정지 버튼
-    public void ShowStopGroup()
-    {
-        StopGroup.SetActive(true);
-
-        Smog.SetActive(true);
-    }
-
     // 메인화면으로
     public void GoMain()
     {
@@ -802,31 +824,51 @@ public class GameManager : MonoBehaviour
         PlayerMemo[Who] = Memo.text;
     }
 
-    // 창 닫기 버튼
-    public void DownGroup(GameObject obj)
-    {
-        obj.SetActive(false);
-        Smog.SetActive(false);
-    }
-
-    // 게임 종료 오브젝트 열기 버튼
-    public void EndGroupUpBtn()
-    {
-        EndGroup.SetActive(true);
-    }
-
-    // 게임 종료 오브젝트 닫기 버튼
-    public void EndGroupDownBtn()
-    {
-        EndGroup.SetActive(false);
-    }
-
     // 뭐더라 제시어 확인 버튼
     public void ForgetBtn()
     {
         BeforeCheckGroup.SetActive(false);
         AfterCheckGroup.SetActive(true);
         ForgetWord.text = Words[Who];
+    }
+
+    // 도전 입력창 초기화
+    public void ResetChallenge()
+    {
+        Challenge.text = "";
+        isCorrect = false;
+    }
+
+    public void CountDownStart()
+    {
+        if(Challenge.text == Words[Who])
+        {
+            isCorrect = true;
+        }
+        CountDown.text = "<size=200>3</size>";
+        StartCoroutine("Coroutine_CountDown");
+    }
+
+    IEnumerator Coroutine_CountDown()
+    {
+        yield return new WaitForSeconds(1.0f);
+        
+        CountDown.text = "<size=250>2</size>";
+        yield return new WaitForSeconds(1.0f);
+
+        CountDown.text = "<size=300>1</size>";
+        yield return new WaitForSeconds(1.0f);
+
+        CountDownGroup.SetActive(false);
+        if(isCorrect == true)
+        {
+
+        }
+        else
+        {
+            Failure_text.text = Nickname[Who] + "\n님의 제시어는\n" + Challenge.text + "이(가)\n아닙니다";
+            FailureGroup.SetActive(true); ;
+        }
     }
 
     // 제시어 공개 슬라이드 닫기
