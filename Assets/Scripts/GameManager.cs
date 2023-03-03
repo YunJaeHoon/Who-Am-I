@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -422,6 +423,13 @@ public class GameManager : MonoBehaviour
     public GameObject CountDownGroup;                               // 카운트다운 그룹
     public GameObject FailureGroup;                                 // 실패 그룹
 
+    // 게임오버 오브젝트
+    public GameObject GameOverGroup;                                // 게임종료 그룹
+    public GameObject[] PlayerResults = new GameObject[6];          // 패배 플레이어 이름표 배열
+    public GameObject[] PlayerResultsColor = new GameObject[6];     // 패배 플레이어 이름표 색깔
+    public TMP_Text[] PlayerResultsNickname = new TMP_Text[6];      // 패배 플레이어 이름표 이름
+    public TMP_Text[] PlayerResultsWord = new TMP_Text[6];          // 패배 플레이어 이름표 제시어
+
     public TMP_Text HeadCountUI;                                    // 인원수 숫자
     public TMP_Text NicknameTitle;                                  // 닉네임 + "제시어"
     public TMP_Text Warning;                                        // 닉네임 + "님을 제외한 플레이어만 확인하세요"
@@ -450,6 +458,7 @@ public class GameManager : MonoBehaviour
     int[] ColorArr = { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0 };              // 색상 확인 배열
     int Who = 0;                                                    // 플레이어 차례
     int Round = 1;                                                  // 게임 라운드
+    int[] order = { 1, 2, 3, 4, 5, 6 };                             // 순서
 
     bool isMain = true;                                             // 현재 메인 씬인가?
     bool isSub = false;                                             // 현재 서브 씬인가?
@@ -492,6 +501,39 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void Regame()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            if (i < HeadCount)
+            {
+                PlayerMemo[i] = "";
+                Backgrounds[i].SetActive(true);
+            }
+            order[i] = i + 1;
+        }
+
+        Transform[] childList = BackgroundGroup.GetComponentsInChildren<Transform>();
+        foreach (Transform child in childList)
+        {
+            if (child.name != BackgroundGroup.name)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        Backgrounds.Clear();
+        Words.Clear();
+        Nickname.Clear();
+        Who = 0;
+        Round = 1;
+
+        GameOverGroup.SetActive(false);
+        Hint_countCover.SetActive(true);
+        Hint_firstCover.SetActive(true);
+        GameStart();
+    }
+
     // 창 띄우기 함수 (스모그랑)
     public void ShowWithSmog(GameObject obj)
     {
@@ -531,39 +573,7 @@ public class GameManager : MonoBehaviour
                     Image AddPlayerColorImage;
                     ColorArr[i] = HeadCount + 1;
                     AddPlayerColorImage = PlayerColorBtnArr[HeadCount].GetComponent<Image>();
-                    switch (i)
-                    {
-                        case 0:
-                            AddPlayerColorImage.color = new Color32(255, 0, 0, 255);
-                            break;
-                        case 1:
-                            AddPlayerColorImage.color = new Color32(255, 174, 0, 255);
-                            break;
-                        case 2:
-                            AddPlayerColorImage.color = new Color32(255, 211, 0, 255);
-                            break;
-                        case 3:
-                            AddPlayerColorImage.color = new Color32(169, 255, 0, 255);
-                            break;
-                        case 4:
-                            AddPlayerColorImage.color = new Color32(7, 212, 0, 255);
-                            break;
-                        case 5:
-                            AddPlayerColorImage.color = new Color32(0, 251, 255, 255);
-                            break;
-                        case 6:
-                            AddPlayerColorImage.color = new Color32(0, 119, 255, 255);
-                            break;
-                        case 7:
-                            AddPlayerColorImage.color = new Color32(170, 0, 255, 255);
-                            break;
-                        case 8:
-                            AddPlayerColorImage.color = new Color32(0, 0, 0, 255);
-                            break;
-                        case 9:
-                            AddPlayerColorImage.color = new Color32(255, 255, 255, 255);
-                            break;
-                    }
+                    AddPlayerColorImage.color = ImageColorChange(i);
 
                     ColorBtnArr[i].transform.GetChild(0).gameObject.SetActive(true);
 
@@ -634,41 +644,9 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            switch (CurrentColorBtn)
-            {
-                case 0:
-                    PlayerColorImage.color = new Color32(255, 0, 0, 255);
-                    break;
-                case 1:
-                    PlayerColorImage.color = new Color32(255, 174, 0, 255);
-                    break;
-                case 2:
-                    PlayerColorImage.color = new Color32(255, 211, 0, 255);
-                    break;
-                case 3:
-                    PlayerColorImage.color = new Color32(169, 255, 0, 255);
-                    break;
-                case 4:
-                    PlayerColorImage.color = new Color32(7, 212, 0, 255);
-                    break;
-                case 5:
-                    PlayerColorImage.color = new Color32(0, 251, 255, 255);
-                    break;
-                case 6:
-                    PlayerColorImage.color = new Color32(0, 119, 255, 255);
-                    break;
-                case 7:
-                    PlayerColorImage.color = new Color32(170, 0, 255, 255);
-                    break;
-                case 8:
-                    PlayerColorImage.color = new Color32(0, 0, 0, 255);
-                    break;
-                case 9:
-                    PlayerColorImage.color = new Color32(255, 255, 255, 255);
-                    break;
-            }
+            PlayerColorImage.color = ImageColorChange(CurrentColorBtn);
 
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 if (ColorArr[i] == CurrentPlayerNumber)
                 {
@@ -712,6 +690,39 @@ public class GameManager : MonoBehaviour
             int index = random.Next(WordDict.Count);
             Words.Add(WordDict.Keys.ElementAt(index));
         }
+
+        // 순서 섞기
+        for (int i = 0; i < 20; i++)
+        {
+            int r1 = UnityEngine.Random.Range(0, HeadCount);
+            int r2 = UnityEngine.Random.Range(0, HeadCount);
+
+            GameObject temp1 = Backgrounds[r1];
+            Backgrounds[r1] = Backgrounds[r2];
+            Backgrounds[r2] = temp1;
+
+            String temp2 = Nickname[r1];
+            Nickname[r1] = Nickname[r2];
+            Nickname[r2] = temp2;
+
+            int temp3 = order[r1];
+            order[r1] = order[r2];
+            order[r2] = temp3;
+        }
+
+        CheckWordGroup.SetActive(true);
+    }
+
+    // 제시어 공개 슬라이드 닫기
+    void DownShowWords()
+    {
+        Backgrounds[0].SetActive(true);
+        ShowWordGroup.SetActive(true);
+
+        NicknameTitle.text = Nickname[0] + "\n님의 제시어";
+        Warning.text = Nickname[0] + " 님을\n 제외한 플레이어만 확인하세요";
+
+        ShowWordsSlide.SetActive(false);
     }
 
     // 빨간색 제시어 확인 버튼
@@ -746,14 +757,12 @@ public class GameManager : MonoBehaviour
     public void ShowHintCount()
     {
         Hint_countCover.SetActive(false);
-        HintBtn.transform.GetChild(0).gameObject.SetActive(false);
     }
 
     // 초성 힌트 버튼
     public void ShowHintFirst()
     {
         Hint_firstCover.SetActive(false);
-        HintBtn.transform.GetChild(1).gameObject.SetActive(false);
     }
 
     // 도전 스킵 버튼
@@ -860,27 +869,45 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
 
         CountDownGroup.SetActive(false);
+
         if(isCorrect == true)
         {
+            GameStartGroup.SetActive(false);
+            GameOverGroup.SetActive(true);
 
+            for(int i = HeadCount; i < 6; i++)
+            {
+                PlayerResults[i].SetActive(false);
+            }
+
+            int loser = 1;
+
+            for(int i = 0; i < HeadCount; i++)
+            {
+                if(i == Who)
+                {
+                    Image WinnerColorImage;
+                    WinnerColorImage = PlayerResultsColor[0].GetComponent<Image>();
+                    WinnerColorImage.color = ImageColorChange(Array.IndexOf(ColorArr, order[Who]));
+                    PlayerResultsNickname[0].text = Nickname[Who];
+                    PlayerResultsWord[0].text = Words[Who];
+                }
+                else
+                {
+                    Image LoserColorImage;
+                    LoserColorImage = PlayerResultsColor[loser].GetComponent<Image>();
+                    LoserColorImage.color = ImageColorChange(Array.IndexOf(ColorArr, order[i]));
+                    PlayerResultsNickname[loser].text = Nickname[i];
+                    PlayerResultsWord[loser].text = Words[i];
+                    loser++;
+                }
+            }
         }
         else
         {
             Failure_text.text = Nickname[Who] + "\n님의 제시어는\n" + Challenge.text + "이(가)\n아닙니다";
             FailureGroup.SetActive(true); ;
         }
-    }
-
-    // 제시어 공개 슬라이드 닫기
-    void DownShowWords()
-    {
-        Backgrounds[0].SetActive(true);
-        ShowWordGroup.SetActive(true);
-
-        NicknameTitle.text = Nickname[0] + "\n님의 제시어";
-        Warning.text = Nickname[0] + " 님을\n 제외한 플레이어만 확인하세요";
-
-        ShowWordsSlide.SetActive(false);
     }
 
     // 게임 시작 슬라이드 닫기
@@ -897,6 +924,48 @@ public class GameManager : MonoBehaviour
         GameStartGroup.SetActive(true);
         Round_text.text = "Round " + Round;
 
+        HintBtn.SetActive(true);
         GameStartSlide.SetActive(false);
+    }
+
+    // 이미지 색깔 변화
+    Color32 ImageColorChange(int num)
+    {
+        Color32 color = new Color32();
+        switch (num)
+        {
+            case 0:
+                color = new Color32(255, 0, 0, 255);
+                break;
+            case 1:
+                color = new Color32(255, 174, 0, 255);
+                break;
+            case 2:
+                color = new Color32(255, 211, 0, 255);
+                break;
+            case 3:
+                color = new Color32(169, 255, 0, 255);
+                break;
+            case 4:
+                color = new Color32(7, 212, 0, 255);
+                break;
+            case 5:
+                color = new Color32(0, 251, 255, 255);
+                break;
+            case 6:
+                color = new Color32(0, 119, 255, 255);
+                break;
+            case 7:
+                color = new Color32(170, 0, 255, 255);
+                break;
+            case 8:
+                color = new Color32(0, 0, 0, 255);
+                break;
+            case 9:
+                color = new Color32(255, 255, 255, 255);
+                break;
+        }
+
+        return color;
     }
 }
