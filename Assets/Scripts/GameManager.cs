@@ -11,6 +11,97 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("-------------메인씬 오브젝트-------------")]
+    public GameObject MainSceneGroup;                               // 메인씬 그룹
+    public GameObject Background;                                   // 메인화면 배경
+
+    [Header("-------------서브씬 오브젝트-------------")]
+    public GameObject SubSceneGroup;                                // 서브씬 그룹
+    public GameObject[] Player = new GameObject[6];                 // 플레이어 창 배열
+    public GameObject[] PlayerColorBtnArr = new GameObject[6];      // 플레이어 창의 색상 배열
+    public TMP_Text HeadCountUI;                                    // 인원수 숫자
+
+    [Space(10f)]
+    public GameObject ColorSelectUI;                                // 색상창
+    public GameObject[] ColorBtnArr = new GameObject[10];           // 색상창 색상 버튼 배열
+
+    [Space(10f)]
+    GameObject PlayerColor;                                         // 클릭한 플레이어 창의 색상
+    Image PlayerColorImage;                                         // 클릭한 플레이어 창의 색상 이미지
+    int CurrentPlayerNumber;                                        // 현재 색상 변경 중인 플레이어 번호
+    int CurrentColorBtn;                                            // 현재 누른 색상창의 색상 버튼
+    int[] ColorArr = { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0 };              // 색상 확인 배열
+
+    [Space(10f)]
+    public GameObject[] PlayerBackground = new GameObject[10];      // 배경 프리팹 배열
+    public TMP_InputField[] PlayerNickname = new TMP_InputField[6]; // 플레이어 닉네임 배열
+
+    [Header("-----------제시어 공개씬 오브젝트-----------")]
+    public GameObject ShowWordGroup;                                // 제시어씬 그룹
+    public GameObject ShowWordsSlide;                               // 제시어 공개 슬라이드
+    public GameObject CheckWordGroup;                               // 제시어 가림막 그룹
+
+    [Space(10f)]
+    public TMP_Text NicknameTitle;                                  // 닉네임 + "제시어"
+    public TMP_Text Warning;                                        // 닉네임 + "님을 제외한 플레이어만 확인하세요"
+    public TMP_Text PlayerWord;                                     // 플레이어 제시어
+
+    [Header("-------------게임씬 오브젝트-------------")]
+    public GameObject GameStartGroup;                               // 게임씬 그룹
+    public GameObject GameStartSlide;                               // 게임 시작 슬라이드
+    public TMP_Text Round_text;                                     // 라운드
+    public TMP_Text NicknameQuestion;                               // 닉네임 + "님의 질문"
+
+    // 힌트 오브젝트
+    [Space(10f)]
+    public GameObject HintBtn;                                      // 힌트 그룹
+    public GameObject HintCountBtn;                                 // 글자 수 힌트 버튼
+    public GameObject HintFirstBtn;                                 // 초성 힌트 버튼
+    public GameObject Hint_countCover;                              // 글자 수 힌트 가리개
+    public GameObject Hint_firstCover;                              // 초성 힌트 가리개
+    public TMP_Text Hint_count;                                     // 글자수 힌트
+    public TMP_Text Hint_first;                                     // 초성 힌트
+
+    // 뭐더라 오브젝트
+    [Space(10f)]
+    public GameObject ForgetGroup;                                  // 뭐더라 그룹
+    public GameObject BeforeCheckGroup;                             // 뭐더라 > 제시어 확인 전 그룹
+    public GameObject AfterCheckGroup;                              // 뭐더라 > 제시어 확인 후 그룹
+    public TMP_Text ForgetWarning;                                  // 뭐더라 주의사항
+    public TMP_Text ForgetWord;                                     // 뭐더라 제시어
+
+    // 메모장 오브젝트
+    [Space(10f)]
+    public GameObject MemoGroup;                                    // 메모장 그룹
+    public TMP_InputField Memo;                                     // 메모장
+    string[] PlayerMemo = new string[6];                            // 플레이어 메모 배열
+
+    // 도전 오브젝트
+    [Space(10f)]
+    public GameObject CountDownGroup;                               // 카운트다운 그룹
+    public GameObject FailureGroup;                                 // 실패 그룹
+    public TMP_InputField Challenge;                                // 도전 입력
+    public TMP_Text CountDown;                                      // 카운트다운
+    public TMP_Text Failure_text;                                   // 실패 대사
+
+    [Header("------------게임오버씬 오브젝트------------")]
+    public GameObject GameOverGroup;                                // 게임종료 그룹
+    public GameObject[] PlayerResults = new GameObject[6];          // 패배 플레이어 이름표 배열
+    public GameObject[] PlayerResultsColor = new GameObject[6];     // 패배 플레이어 이름표 색깔
+    public TMP_Text[] PlayerResultsNickname = new TMP_Text[6];      // 패배 플레이어 이름표 이름
+    public TMP_Text[] PlayerResultsWord = new TMP_Text[6];          // 패배 플레이어 이름표 제시어
+
+    [Header("-------------사운드 오브젝트-------------")]
+    public AudioSource BGMPlayer;                                   // 브금 플레이어
+    public AudioSource SFXPlayer;                                   // 효과음 플레이어
+    public AudioSource VictoryPlayer;                               // 게임종료 플레이어
+    public AudioClip[] BGMMusic = new AudioClip[3];                 // 브금 사운드
+    public AudioClip[] SFXMusic = new AudioClip[6];                 // 효과음 사운드
+
+    [Header("--------------기타 오브젝트--------------")]
+    public Transform BackgroundGroup;                               // 배경 축적 폴더
+    public GameObject Smog;                                         // 버튼 차단 스모그
+
     Dictionary<string, string> WordDict = new Dictionary<string, string>()
     {
         { "유재석", "ㅇㅈㅅ" },
@@ -388,74 +479,7 @@ public class GameManager : MonoBehaviour
         { "아인슈타인", "ㅇㅇㅅㅌㅇ" },
     };
 
-    public Transform BackgroundGroup;                               // 배경 축적 폴더
-    public GameObject Smog;                                         // 버튼 차단 스모그
-
-    public GameObject Background;                                   // 메인화면 배경
-    public GameObject MainSceneGroup;                               // 메인씬 그룹
-    public GameObject SubSceneGroup;                                // 서브씬 그룹
-    public GameObject GameStartGroup;                               // 게임씬 그룹
-
-    public GameObject ShowWordsSlide;                               // 제시어 공개 슬라이드
-    public GameObject GameStartSlide;                               // 제시어 공개 슬라이드
-    public GameObject ShowWordGroup;                                // 제시어씬 그룹
-    public GameObject CheckWordGroup;                               // 제시어 가리는 그룹
-    public GameObject HintBtn;                                      // 힌트 버튼
-    public GameObject Hint_countCover;                              // 글자 수 힌트 가리개
-    public GameObject Hint_firstCover;                              // 초성 힌트 가리개
-
-    // 뭐더라 오브젝트
-    public GameObject ForgetGroup;                                  // 뭐더라 그룹
-    public GameObject BeforeCheckGroup;                             // 뭐더라 > 제시어 확인 전 그룹
-    public GameObject AfterCheckGroup;                              // 뭐더라 > 제시어 확인 후 그룹
-    public TMP_Text ForgetWarning;                                  // 뭐더라 주의사항
-    public TMP_Text ForgetWord;                                     // 뭐더라 제시어
-
-    // 메모장 오브젝트
-    public GameObject MemoGroup;                                    // 메모장 그룹
-    public TMP_InputField Memo;                                     // 메모장
-    string[] PlayerMemo = new string[6];                            // 플레이어 메모 배열
-
-    // 도전 오브젝트
-    public TMP_InputField Challenge;                                // 도전 입력
-    public TMP_Text CountDown;                                      // 카운트다운
-    public TMP_Text Failure_text;                                   // 실패 대사
-    public GameObject CountDownGroup;                               // 카운트다운 그룹
-    public GameObject FailureGroup;                                 // 실패 그룹
-
-    // 게임오버 오브젝트
-    public GameObject GameOverGroup;                                // 게임종료 그룹
-    public GameObject[] PlayerResults = new GameObject[6];          // 패배 플레이어 이름표 배열
-    public GameObject[] PlayerResultsColor = new GameObject[6];     // 패배 플레이어 이름표 색깔
-    public TMP_Text[] PlayerResultsNickname = new TMP_Text[6];      // 패배 플레이어 이름표 이름
-    public TMP_Text[] PlayerResultsWord = new TMP_Text[6];          // 패배 플레이어 이름표 제시어
-
-    public TMP_Text HeadCountUI;                                    // 인원수 숫자
-    public TMP_Text NicknameTitle;                                  // 닉네임 + "제시어"
-    public TMP_Text Warning;                                        // 닉네임 + "님을 제외한 플레이어만 확인하세요"
-    public TMP_Text PlayerWord;                                     // 플레이어 제시어
-    public TMP_Text Round_text;                                     // 라운드
-
-    public TMP_Text NicknameQuestion;                               // 닉네임 + "님의 질문"
-    public TMP_Text Hint_count;                                     // 글자수 힌트
-    public TMP_Text Hint_first;                                     // 초성 힌트
-
-    public GameObject[] Player = new GameObject[6];                 // 플레이어 창 배열
-    public GameObject[] PlayerColorBtnArr = new GameObject[6];      // 플레이어 창의 색상 배열
-    public GameObject[] PlayerBackground = new GameObject[10];      // 배경 프리팹 배열
-    public TMP_InputField[] PlayerNickname = new TMP_InputField[6]; // 플레이어 닉네임 배열
-
-    public GameObject ColorSelectUI;                                // 색상창
-    public GameObject[] ColorBtnArr = new GameObject[10];           // 색상창 색상 버튼 배열
-
-    GameObject PlayerColor;                                         // 클릭한 플레이어 창의 색상
-    Image PlayerColorImage;                                         // 클릭한 플레이어 창의 색상 이미지
-
     int HeadCount = 2;                                              // 현재 인원 수
-
-    int CurrentPlayerNumber;                                        // 현재 색상 변경 중인 플레이어 번호
-    int CurrentColorBtn;                                            // 현재 누른 색상창의 색상 버튼
-    int[] ColorArr = { 1, 2, 0, 0, 0, 0, 0, 0, 0, 0 };              // 색상 확인 배열
     int Who = 0;                                                    // 플레이어 차례
     int Round = 1;                                                  // 게임 라운드
     int[] order = { 1, 2, 3, 4, 5, 6 };                             // 순서
@@ -469,6 +493,9 @@ public class GameManager : MonoBehaviour
     List<String> Words = new List<String>();                        // 플레이어 제시어 리스트
     List<String> Nickname = new List<String>();                     // 플레이어 닉네임 리스트
 
+    enum BGM { MainBGM, ShowWordBGM, GameBGM };
+    enum SFX { Click, Slide, Hint, Fail, Over, Beep };
+
     void Awake()
     {
         // 최적화
@@ -478,8 +505,10 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         // 메인씬 -> 서브씬
-        if (Input.anyKeyDown && isMain)
+        if (Input.anyKeyDown && isMain && !EventSystem.current.IsPointerOverGameObject())
         {
+            PlaySFX(SFX.Click);
+
             isMain = false;
             isSub = true;
 
@@ -491,16 +520,37 @@ public class GameManager : MonoBehaviour
         // 서브 씬 -> 메인씬
         if (Input.GetKeyDown(KeyCode.Escape) && isSub && !ColorSelectUI.activeSelf)
         {
+            PlaySFX(SFX.Click);
+
             GoMain();
         }
 
         // 서브 씬 색상창 닫기
         if (Input.GetKeyDown(KeyCode.Escape) && isSub && ColorSelectUI.activeSelf)
         {
+            PlaySFX(SFX.Click);
+
             ColorSelectUI.SetActive(false);
         }
     }
 
+    // 메인화면으로
+    public void GoMain()
+    {
+        PlaySFX(SFX.Click);
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    // 게임 종료
+    public void EndGame()
+    {
+        PlaySFX(SFX.Click);
+
+        Application.Quit();
+    }
+
+    // 다시하기
     public void Regame()
     {
         for (int i = 0; i < 6; i++)
@@ -529,6 +579,8 @@ public class GameManager : MonoBehaviour
         Round = 1;
 
         GameOverGroup.SetActive(false);
+        HintCountBtn.SetActive(true);
+        HintFirstBtn.SetActive(true);
         Hint_countCover.SetActive(true);
         Hint_firstCover.SetActive(true);
         GameStart();
@@ -537,20 +589,25 @@ public class GameManager : MonoBehaviour
     // 창 띄우기 함수 (스모그랑)
     public void ShowWithSmog(GameObject obj)
     {
-        obj.SetActive(true);
+        PlaySFX(SFX.Click);
 
+        obj.SetActive(true);
         Smog.SetActive(true);
     }
 
     // 창 띄우기 함수
     public void Show(GameObject obj)
     {
+        PlaySFX(SFX.Click);
+
         obj.SetActive(true);
     }
 
     // 창 닫기 함수 (스모그랑)
     public void DownWithSmog(GameObject obj)
     {
+        PlaySFX(SFX.Click);
+
         obj.SetActive(false);
         Smog.SetActive(false);
     }
@@ -558,13 +615,17 @@ public class GameManager : MonoBehaviour
     // 창 닫기 함수
     public void Down(GameObject obj)
     {
+        PlaySFX(SFX.Click);
+
         obj.SetActive(false);
     }
 
     // > 버튼
     public void HeadCountUp()
     {
-        if(HeadCount < 6)
+        PlaySFX(SFX.Click);
+
+        if (HeadCount < 6)
         {
             for(int i = 0; i < 10; i++)
             {
@@ -587,8 +648,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // < 버튼
     public void HeadCountDown()
     {
+        PlaySFX(SFX.Click);
+
         if (HeadCount > 2)
         {
             for(int i = 0; i < 10; i++)
@@ -610,7 +674,9 @@ public class GameManager : MonoBehaviour
     // 색상창 띄우기
     public void ColorSelectOn()
     {
-        if(!isColorChanging)
+        PlaySFX(SFX.Click);
+
+        if (!isColorChanging)
         {
             ColorSelectUI.SetActive(true);
             PlayerColor = EventSystem.current.currentSelectedGameObject;
@@ -628,6 +694,8 @@ public class GameManager : MonoBehaviour
     // 색상창 색상 선택
     public void ColorSelect()
     {
+        PlaySFX(SFX.Click);
+
         GameObject SelectColor = EventSystem.current.currentSelectedGameObject;
         CurrentColorBtn = Array.IndexOf(ColorBtnArr, SelectColor);
         PlayerColorImage = PlayerColor.GetComponent<Image>();
@@ -652,7 +720,6 @@ public class GameManager : MonoBehaviour
                 {
                     ColorArr[i] = 0;
                     ColorBtnArr[i].transform.GetChild(0).gameObject.SetActive(false);
-                    Debug.Log(i);
                 }
             }
 
@@ -671,6 +738,10 @@ public class GameManager : MonoBehaviour
         isSub = false;
         SubSceneGroup.SetActive(false);
         ShowWordsSlide.SetActive(true);
+
+        BGMPlayer.Stop();
+        PlaySFX(SFX.Slide);
+
         Invoke("DownShowWords", 1.5f);
         Background.SetActive(false);
 
@@ -716,6 +787,7 @@ public class GameManager : MonoBehaviour
     // 제시어 공개 슬라이드 닫기
     void DownShowWords()
     {
+        PlayBGM(BGM.ShowWordBGM);
         Backgrounds[0].SetActive(true);
         ShowWordGroup.SetActive(true);
 
@@ -725,18 +797,20 @@ public class GameManager : MonoBehaviour
         ShowWordsSlide.SetActive(false);
     }
 
-    // 빨간색 제시어 확인 버튼
+    // 제시어 공개 빨간색 제시어 확인 버튼
     public void CheckWord()
     {
+        PlaySFX(SFX.Click);
         CheckWordGroup.SetActive(false);
         PlayerWord.text = Words[Who];
     }
 
-    // 초록색 확인 버튼
+    // 제시어 공개 초록색 확인 버튼
     public void CheckNext()
     {
-        if(Who + 1 < HeadCount)
+        if (Who + 1 < HeadCount)
         {
+            PlaySFX(SFX.Click);
             Who++;
             NicknameTitle.text = Nickname[Who] + "\n님의 제시어";
             Warning.text = Nickname[Who] + " 님을\n 제외한 플레이어만 확인하세요";
@@ -749,25 +823,53 @@ public class GameManager : MonoBehaviour
             ShowWordGroup.SetActive(false);
             GameStartSlide.SetActive(true);
 
+            BGMPlayer.Stop();
+            PlaySFX(SFX.Slide);
             Invoke("DownGameStart", 1.5f);
         }
+    }
+
+    // 게임 시작 슬라이드 닫기
+    void DownGameStart()
+    {
+        PlayBGM(BGM.GameBGM);
+
+        Backgrounds[Who].SetActive(false);
+        Who = 0;
+        Backgrounds[Who].SetActive(true);
+
+        NicknameQuestion.text = Nickname[Who] + "\n님의 질문";
+        Hint_count.text = (Words[Who].Length).ToString() + "글자";
+        Hint_first.text = WordDict[Words[Who]];
+
+        GameStartGroup.SetActive(true);
+        Round_text.gameObject.SetActive(true);
+        Round_text.text = "Round " + Round;
+
+        HintBtn.SetActive(true);
+        GameStartSlide.SetActive(false);
     }
 
     // 글자 수 힌트 버튼
     public void ShowHintCount()
     {
+        PlaySFX(SFX.Hint);
+        HintCountBtn.SetActive(false);
         Hint_countCover.SetActive(false);
     }
 
     // 초성 힌트 버튼
     public void ShowHintFirst()
     {
+        PlaySFX(SFX.Hint);
+        HintFirstBtn.SetActive(false);
         Hint_firstCover.SetActive(false);
     }
 
     // 도전 스킵 버튼
     public void ChallengeSkip()
     {
+        PlaySFX(SFX.Click);
         if (Who + 1 < HeadCount)
         {
             Who++;
@@ -798,6 +900,7 @@ public class GameManager : MonoBehaviour
     // 뭐더라 버튼
     public void ShowForgetGroup()
     {
+        PlaySFX(SFX.Click);
         ForgetGroup.SetActive(true);
         BeforeCheckGroup.SetActive(true);
         AfterCheckGroup.SetActive(false);
@@ -806,25 +909,23 @@ public class GameManager : MonoBehaviour
         Smog.SetActive(true);
     }
 
+    // 뭐더라 제시어 확인 버튼
+    public void ForgetBtn()
+    {
+        PlaySFX(SFX.Click);
+        BeforeCheckGroup.SetActive(false);
+        AfterCheckGroup.SetActive(true);
+        ForgetWord.text = Words[Who];
+    }
+
     // 메모장 버튼
     public void ShowMemoGroup()
     {
+        PlaySFX(SFX.Click);
         MemoGroup.SetActive(true);
         Memo.text = PlayerMemo[Who];
 
         Smog.SetActive(true);
-    }
-
-    // 메인화면으로
-    public void GoMain()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
-    // 게임 종료
-    public void EndGame()
-    {
-        Application.Quit();
     }
 
     // 메모 저장
@@ -833,24 +934,10 @@ public class GameManager : MonoBehaviour
         PlayerMemo[Who] = Memo.text;
     }
 
-    // 뭐더라 제시어 확인 버튼
-    public void ForgetBtn()
-    {
-        BeforeCheckGroup.SetActive(false);
-        AfterCheckGroup.SetActive(true);
-        ForgetWord.text = Words[Who];
-    }
-
-    // 도전 입력창 초기화
-    public void ResetChallenge()
-    {
-        Challenge.text = "";
-        isCorrect = false;
-    }
-
+    // 도전하고 카운트다운
     public void CountDownStart()
     {
-        if(Challenge.text == Words[Who])
+        if (Challenge.text == Words[Who])
         {
             isCorrect = true;
         }
@@ -860,31 +947,38 @@ public class GameManager : MonoBehaviour
 
     IEnumerator Coroutine_CountDown()
     {
+        PlaySFX(SFX.Beep);
         yield return new WaitForSeconds(1.0f);
-        
+
+        PlaySFX(SFX.Beep);
         CountDown.text = "<size=250>2</size>";
         yield return new WaitForSeconds(1.0f);
 
+        PlaySFX(SFX.Beep);
         CountDown.text = "<size=300>1</size>";
         yield return new WaitForSeconds(1.0f);
 
         CountDownGroup.SetActive(false);
 
-        if(isCorrect == true)
+        if (isCorrect == true)
         {
+            VictoryPlayer.Play();
+            PlaySFX(SFX.Over);
+
             GameStartGroup.SetActive(false);
             GameOverGroup.SetActive(true);
+            Round_text.gameObject.SetActive(false);
 
-            for(int i = HeadCount; i < 6; i++)
+            for (int i = HeadCount; i < 6; i++)
             {
                 PlayerResults[i].SetActive(false);
             }
 
             int loser = 1;
 
-            for(int i = 0; i < HeadCount; i++)
+            for (int i = 0; i < HeadCount; i++)
             {
-                if(i == Who)
+                if (i == Who)
                 {
                     Image WinnerColorImage;
                     WinnerColorImage = PlayerResultsColor[0].GetComponent<Image>();
@@ -905,27 +999,19 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            PlaySFX(SFX.Fail);
+
             Failure_text.text = Nickname[Who] + "\n님의 제시어는\n" + Challenge.text + "이(가)\n아닙니다";
             FailureGroup.SetActive(true); ;
         }
     }
 
-    // 게임 시작 슬라이드 닫기
-    void DownGameStart()
+    // 도전 입력창 초기화
+    public void ResetChallenge()
     {
-        Backgrounds[Who].SetActive(false);
-        Who = 0;
-        Backgrounds[Who].SetActive(true);
-
-        NicknameQuestion.text = Nickname[Who] + "\n님의 질문";
-        Hint_count.text = (Words[Who].Length).ToString() + "글자";
-        Hint_first.text = WordDict[Words[Who]];
-
-        GameStartGroup.SetActive(true);
-        Round_text.text = "Round " + Round;
-
-        HintBtn.SetActive(true);
-        GameStartSlide.SetActive(false);
+        BGMPlayer.Stop();
+        Challenge.text = "";
+        isCorrect = false;
     }
 
     // 이미지 색깔 변화
@@ -967,5 +1053,57 @@ public class GameManager : MonoBehaviour
         }
 
         return color;
+    }
+
+    // BGM 재생
+    void PlayBGM(BGM type)
+    {
+        switch (type)
+        {
+            case BGM.MainBGM:
+                BGMPlayer.clip = BGMMusic[0];
+                break;
+            case BGM.ShowWordBGM:
+                BGMPlayer.clip = BGMMusic[1];
+                break;
+            case BGM.GameBGM:
+                BGMPlayer.clip = BGMMusic[2];
+                break;
+        }
+        BGMPlayer.Play();
+    }
+
+    // SFX 재생
+    void PlaySFX(SFX type)
+    {
+        switch (type)
+        {
+            case SFX.Click:
+                SFXPlayer.clip = SFXMusic[0];
+                break;
+            case SFX.Slide:
+                SFXPlayer.clip = SFXMusic[1];
+                break;
+            case SFX.Hint:
+                SFXPlayer.clip = SFXMusic[2];
+                break;
+            case SFX.Fail:
+                SFXPlayer.clip = SFXMusic[3];
+                break;
+            case SFX.Over:
+                SFXPlayer.clip = SFXMusic[4];
+                break;
+            case SFX.Beep:
+                SFXPlayer.clip = SFXMusic[5];
+                break;
+        }
+        SFXPlayer.Play();
+    }
+
+    // 게임 음악 재생
+    public void PlayGameBGM()
+    {
+        BGMPlayer.clip = BGMMusic[2];
+        BGMPlayer.Play();
     }
 }
