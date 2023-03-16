@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Audio;
 
 public class GameManager : MonoBehaviour
 {
@@ -97,6 +98,15 @@ public class GameManager : MonoBehaviour
     public AudioSource VictoryPlayer;                               // 게임종료 플레이어
     public AudioClip[] BGMMusic = new AudioClip[3];                 // 브금 사운드
     public AudioClip[] SFXMusic = new AudioClip[6];                 // 효과음 사운드
+    public AudioMixer AudioMixer;                                   // 오디오 믹서
+
+    // 환경설정 오브젝트
+    public Slider BGM_slider;                                       // 브금 슬라이더
+    public Slider SFX_slider;                                       // 효과음 슬라이더
+    public Toggle BGM_toggle;                                       // 브금 음소거 체크박스
+    public Toggle SFX_toggle;                                       // 효과음 음소거 체크박스
+    public TMP_Text BGM_slidertext;                                 // 브금 음량 텍스트
+    public TMP_Text SFX_slidertext;                                 // 효과음 음량 텍스트
 
     [Header("--------------기타 오브젝트--------------")]
     public Transform BackgroundGroup;                               // 배경 축적 폴더
@@ -488,6 +498,8 @@ public class GameManager : MonoBehaviour
     bool isSub = false;                                             // 현재 서브 씬인가?
     bool isColorChanging = false;                                   // 현재 플레이어 색상 변경 중인가?
     bool isCorrect = false;                                         // 도전 성공했는가?
+    bool isBGMMute = false;                                         // 브금 음소거인가?
+    bool isSFXMute = false;                                         // 효과음 음소거인가?
 
     List<GameObject> Backgrounds = new List<GameObject>();          // 플레이어 배경 리스트
     List<String> Words = new List<String>();                        // 플레이어 제시어 리스트
@@ -941,7 +953,7 @@ public class GameManager : MonoBehaviour
         {
             isCorrect = true;
         }
-        CountDown.text = "<size=200>3</size>";
+        CountDown.text = "<size=500>3</size>";
         StartCoroutine("Coroutine_CountDown");
     }
 
@@ -951,11 +963,11 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
 
         PlaySFX(SFX.Beep);
-        CountDown.text = "<size=250>2</size>";
+        CountDown.text = "<size=750>2</size>";
         yield return new WaitForSeconds(1.0f);
 
         PlaySFX(SFX.Beep);
-        CountDown.text = "<size=300>1</size>";
+        CountDown.text = "<size=1000>1</size>";
         yield return new WaitForSeconds(1.0f);
 
         CountDownGroup.SetActive(false);
@@ -1012,6 +1024,80 @@ public class GameManager : MonoBehaviour
         BGMPlayer.Stop();
         Challenge.text = "";
         isCorrect = false;
+    }
+
+    // 배경음 음소거
+    public void BGMMute(bool isOn)
+    {
+        if (isOn && !isBGMMute)
+        {
+            BGM_slider.value = -40f;
+            AudioMixer.SetFloat("bgm", -40f);
+            isBGMMute = true;
+        }
+        else if (isOn && isBGMMute)
+        {
+            BGM_slider.value = 0f;
+            AudioMixer.SetFloat("bgm", 0f);
+            isBGMMute = false;
+        }
+        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 40f) * 1.25f);
+    }
+
+    // 배경음 슬라이더
+    public void BGMChange()
+    {
+        if(BGM_slider.value == -40f && !BGM_toggle.isOn)
+        {
+            BGM_toggle.isOn = true;
+            isBGMMute = true;
+        }
+        else if(BGM_slider.value != -40f && BGM_toggle.isOn)
+        {
+            BGM_toggle.isOn = false;
+            isBGMMute = false;
+        }
+
+        AudioMixer.SetFloat("bgm", BGM_slider.value);
+
+        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 40f) * 1.25f);
+    }
+
+    // 효과음 음소거
+    public void SFXMute(bool isOn)
+    {
+        if (isOn && !isSFXMute)
+        {
+            SFX_slider.value = -40f;
+            AudioMixer.SetFloat("sfx", -40f);
+            isSFXMute = true;
+        }
+        else if (isOn && isSFXMute)
+        {
+            SFX_slider.value = 0f;
+            AudioMixer.SetFloat("sfx", 0f);
+            isSFXMute = false;
+        }
+        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 40f) * 1.25f);
+    }
+
+    // 효과음 슬라이더
+    public void SFXChange()
+    {
+        if (SFX_slider.value == -40f && !SFX_toggle.isOn)
+        {
+            SFX_toggle.isOn = true;
+            isSFXMute = true;
+        }
+        else if (SFX_slider.value != -40f && SFX_toggle.isOn)
+        {
+            SFX_toggle.isOn = false;
+            isSFXMute = false;
+        }
+
+        AudioMixer.SetFloat("sfx", SFX_slider.value);
+
+        SFX_slidertext.text = "효과음 : " + (int)((SFX_slider.value + 40f) * 1.25f);
     }
 
     // 이미지 색깔 변화
