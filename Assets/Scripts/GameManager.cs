@@ -92,6 +92,10 @@ public class GameManager : MonoBehaviour
     public TMP_Text[] PlayerResultsNickname = new TMP_Text[6];      // 패배 플레이어 이름표 이름
     public TMP_Text[] PlayerResultsWord = new TMP_Text[6];          // 패배 플레이어 이름표 제시어
 
+    [Header("-------------도움말 오브젝트-------------")]
+    public GameObject[] HelpPages = new GameObject[9];              // 도움말 페이지 배열
+    public TMP_Text HelpPageText;                                   // 도움말 페이지 텍스트
+
     [Header("-------------사운드 오브젝트-------------")]
     public AudioSource BGMPlayer;                                   // 브금 플레이어
     public AudioSource SFXPlayer;                                   // 효과음 플레이어
@@ -101,6 +105,7 @@ public class GameManager : MonoBehaviour
     public AudioMixer AudioMixer;                                   // 오디오 믹서
 
     // 환경설정 오브젝트
+    [Space(10f)]
     public Slider BGM_slider;                                       // 브금 슬라이더
     public Slider SFX_slider;                                       // 효과음 슬라이더
     public Toggle BGM_toggle;                                       // 브금 음소거 체크박스
@@ -493,6 +498,7 @@ public class GameManager : MonoBehaviour
     int Who = 0;                                                    // 플레이어 차례
     int Round = 1;                                                  // 게임 라운드
     int[] order = { 1, 2, 3, 4, 5, 6 };                             // 순서
+    int HelpPageNumber = 1;                                         // 도움말 현재 페이지
 
     bool isMain = true;                                             // 현재 메인 씬인가?
     bool isSub = false;                                             // 현재 서브 씬인가?
@@ -543,6 +549,7 @@ public class GameManager : MonoBehaviour
             PlaySFX(SFX.Click);
 
             ColorSelectUI.SetActive(false);
+            Smog.SetActive(false);
         }
     }
 
@@ -632,7 +639,35 @@ public class GameManager : MonoBehaviour
         obj.SetActive(false);
     }
 
-    // > 버튼
+    // 도움말 > 버튼
+    public void HelpPageUp()
+    {
+        PlaySFX(SFX.Click);
+
+        if (HelpPageNumber < 9)
+        {
+            HelpPages[HelpPageNumber - 1].SetActive(false);
+            HelpPages[HelpPageNumber].SetActive(true);
+            HelpPageNumber++;
+            HelpPageText.text = HelpPageNumber.ToString() + " / 9";
+        }
+    }
+
+    // 도움말 < 버튼
+    public void HelpPageDown()
+    {
+        PlaySFX(SFX.Click);
+
+        if (HelpPageNumber > 1)
+        {
+            HelpPages[HelpPageNumber - 1].SetActive(false);
+            HelpPages[HelpPageNumber - 2].SetActive(true);
+            HelpPageNumber--;
+            HelpPageText.text = HelpPageNumber.ToString() + " / 9";
+        }
+    }
+
+    // 인원수 > 버튼
     public void HeadCountUp()
     {
         PlaySFX(SFX.Click);
@@ -660,7 +695,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // < 버튼
+    // 인원수 < 버튼
     public void HeadCountDown()
     {
         PlaySFX(SFX.Click);
@@ -687,6 +722,7 @@ public class GameManager : MonoBehaviour
     public void ColorSelectOn()
     {
         PlaySFX(SFX.Click);
+        Smog.SetActive(true);
 
         if (!isColorChanging)
         {
@@ -741,6 +777,7 @@ public class GameManager : MonoBehaviour
             isColorChanging = false;
 
             ColorSelectUI.SetActive(false);
+            Smog.SetActive(false);
         }
     }
 
@@ -1031,28 +1068,28 @@ public class GameManager : MonoBehaviour
     {
         if (isOn && !isBGMMute)
         {
-            BGM_slider.value = -40f;
+            BGM_slider.value = -80f;
             AudioMixer.SetFloat("bgm", -40f);
             isBGMMute = true;
         }
         else if (isOn && isBGMMute)
         {
-            BGM_slider.value = 0f;
+            BGM_slider.value = -30f;
             AudioMixer.SetFloat("bgm", 0f);
             isBGMMute = false;
         }
-        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 40f) * 1.25f);
+        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 80f));
     }
 
     // 배경음 슬라이더
     public void BGMChange()
     {
-        if(BGM_slider.value == -40f && !BGM_toggle.isOn)
+        if(BGM_slider.value == -80f && !BGM_toggle.isOn)
         {
             BGM_toggle.isOn = true;
             isBGMMute = true;
         }
-        else if(BGM_slider.value != -40f && BGM_toggle.isOn)
+        else if(BGM_slider.value != -80f && BGM_toggle.isOn)
         {
             BGM_toggle.isOn = false;
             isBGMMute = false;
@@ -1060,7 +1097,7 @@ public class GameManager : MonoBehaviour
 
         AudioMixer.SetFloat("bgm", BGM_slider.value);
 
-        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 40f) * 1.25f);
+        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 80f));
     }
 
     // 효과음 음소거
@@ -1068,28 +1105,28 @@ public class GameManager : MonoBehaviour
     {
         if (isOn && !isSFXMute)
         {
-            SFX_slider.value = -40f;
+            SFX_slider.value = -80f;
             AudioMixer.SetFloat("sfx", -40f);
             isSFXMute = true;
         }
         else if (isOn && isSFXMute)
         {
-            SFX_slider.value = 0f;
+            SFX_slider.value = -30f;
             AudioMixer.SetFloat("sfx", 0f);
             isSFXMute = false;
         }
-        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 40f) * 1.25f);
+        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 80f));
     }
 
     // 효과음 슬라이더
     public void SFXChange()
     {
-        if (SFX_slider.value == -40f && !SFX_toggle.isOn)
+        if (SFX_slider.value == -80f && !SFX_toggle.isOn)
         {
             SFX_toggle.isOn = true;
             isSFXMute = true;
         }
-        else if (SFX_slider.value != -40f && SFX_toggle.isOn)
+        else if (SFX_slider.value != -80f && SFX_toggle.isOn)
         {
             SFX_toggle.isOn = false;
             isSFXMute = false;
@@ -1097,7 +1134,7 @@ public class GameManager : MonoBehaviour
 
         AudioMixer.SetFloat("sfx", SFX_slider.value);
 
-        SFX_slidertext.text = "효과음 : " + (int)((SFX_slider.value + 40f) * 1.25f);
+        SFX_slidertext.text = "효과음 : " + (int)((SFX_slider.value + 80f));
     }
 
     // 이미지 색깔 변화
