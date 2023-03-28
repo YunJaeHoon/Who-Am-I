@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     [Header("-------------메인씬 오브젝트-------------")]
     public GameObject MainSceneGroup;                               // 메인씬 그룹
     public GameObject Background;                                   // 메인화면 배경
+    public GameObject toSubBtn;                                     // 아무 곳
 
     [Header("-------------서브씬 오브젝트-------------")]
     public GameObject SubSceneGroup;                                // 서브씬 그룹
@@ -116,6 +117,7 @@ public class GameManager : MonoBehaviour
     [Header("--------------기타 오브젝트--------------")]
     public Transform BackgroundGroup;                               // 배경 축적 폴더
     public GameObject Smog;                                         // 버튼 차단 스모그
+    public GameObject AskOver;                                      // 정말 게임을 종료하시겠습니까? 창
 
     Dictionary<string, string> WordDict = new Dictionary<string, string>()
     {
@@ -492,6 +494,55 @@ public class GameManager : MonoBehaviour
         { "시계", "ㅅㄱ" },
         { "시간", "ㅅㄱ" },
         { "아인슈타인", "ㅇㅇㅅㅌㅇ" },
+        { "공자", "ㄱㅈ" },
+        { "잡채", "ㅈㅊ" },
+        { "갈비", "ㄱㅂ" },
+        { "왕", "ㅇ" },
+        { "왕비", "ㅇㅂ" },
+        { "왕자", "ㅇㅈ" },
+        { "공주", "ㄱㅈ" },
+        { "선생님", "ㅅㅅㄴ" },
+        { "관", "ㄱ" },
+        { "동굴", "ㄷㄱ" },
+        { "절벽", "ㅈㅂ" },
+        { "온천", "ㅇㅊ" },
+        { "휴지통", "ㅎㅈㅌ" },
+        { "삼성", "ㅅㅅ" },
+        { "애플", "ㅇㅍ" },
+        { "스티브잡스", "ㅅㅌㅂㅈㅅ" },
+        { "애벌레", "ㅇㅂㄹ" },
+        { "나비", "ㄴㅂ" },
+        { "나방", "ㄴㅂ" },
+        { "스파이더맨", "ㅅㅍㅇㄷㅁ" },
+        { "거인", "ㄱㅇ" },
+        { "난쟁이", "ㄴㅈㅇ" },
+        { "라면", "ㄹㅁ" },
+        { "참이슬", "ㅊㅇㅅ" },
+        { "소주", "ㅅㅈ" },
+        { "맥주", "ㅁㅈ" },
+        { "막걸리", "ㅁㄱㄹ" },
+        { "양주", "ㅇㅈ" },
+        { "와인", "ㅇㅇ" },
+        { "레몬", "ㄹㅁ" },
+        { "에어팟", "ㅇㅇㅍ" },
+        { "아이폰", "ㅇㅇㅍ" },
+        { "스팸", "ㅅㅍ" },
+        { "와플", "ㅇㅍ" },
+        { "미역", "ㅁㅇ" },
+        { "가위", "ㄱㅇ" },
+        { "송혜교", "ㅅㅎㄱ" },
+        { "한소희", "ㅎㅅㅎ" },
+        { "톰크루즈", "ㅌㅋㄹㅈ" },
+        { "저스틴비버", "ㅈㅅㅌㅂㅂ" },
+        { "라푼젤", "ㄹㅍㅈ" },
+        { "비행기", "ㅂㅎㄱ" },
+        { "김종국", "ㄱㅈㄱ" },
+        { "런닝맨", "ㄹㄴㅁ" },
+        { "무한도전", "ㅁㅎㄷㅈ" },
+        { "샴푸", "ㅅㅍ" },
+        { "비누", "ㅂㄴ" },
+        { "군대", "ㄱㄷ" },
+        { "넥타이", "ㄴㅌㅇ" }
     };
 
     int HeadCount = 2;                                              // 현재 인원 수
@@ -522,8 +573,17 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        // 메인씬 -> 게임 종료
+        if (Input.GetKeyDown(KeyCode.Escape) && isMain)
+        {
+            PlaySFX(SFX.Click);
+
+            AskOver.SetActive(true);
+            Smog.SetActive(true);
+        }
+
         // 메인씬 -> 서브씬
-        if (Input.anyKeyDown && isMain && !EventSystem.current.IsPointerOverGameObject())
+        if (Input.GetMouseButtonDown(0) && isMain && !EventSystem.current.IsPointerOverGameObject())
         {
             PlaySFX(SFX.Click);
 
@@ -667,8 +727,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // 인원수 > 버튼
-    public void HeadCountUp()
+    // 메인씬 -> 서브씬
+    public void toSub()
+    {
+        PlaySFX(SFX.Click);
+
+        isMain = false;
+        isSub = true;
+
+        MainSceneGroup.SetActive(false);
+        SubSceneGroup.SetActive(true);
+        ColorSelectUI.SetActive(false);
+        toSubBtn.SetActive(false);
+     }
+
+// 인원수 > 버튼
+public void HeadCountUp()
     {
         PlaySFX(SFX.Click);
 
@@ -734,6 +808,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            Smog.SetActive(false);
             ColorSelectUI.SetActive(false);
             isColorChanging = false;
         }
@@ -1069,16 +1144,16 @@ public class GameManager : MonoBehaviour
         if (isOn && !isBGMMute)
         {
             BGM_slider.value = -80f;
-            AudioMixer.SetFloat("bgm", -40f);
+            AudioMixer.SetFloat("bgm", -80f);
             isBGMMute = true;
         }
         else if (isOn && isBGMMute)
         {
-            BGM_slider.value = -30f;
+            BGM_slider.value = 0f;
             AudioMixer.SetFloat("bgm", 0f);
             isBGMMute = false;
         }
-        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 80f));
+        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 80f) * 5.0f / 8.0f);
     }
 
     // 배경음 슬라이더
@@ -1095,9 +1170,16 @@ public class GameManager : MonoBehaviour
             isBGMMute = false;
         }
 
-        AudioMixer.SetFloat("bgm", BGM_slider.value);
+        if(BGM_slider.value <= 0)
+        {
+            AudioMixer.SetFloat("bgm", BGM_slider.value);
+        }
+        else
+        {
+            AudioMixer.SetFloat("bgm", BGM_slider.value/4.0f);
+        }
 
-        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 80f));
+        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 80f) * 5.0f / 8.0f);
     }
 
     // 효과음 음소거
@@ -1106,16 +1188,16 @@ public class GameManager : MonoBehaviour
         if (isOn && !isSFXMute)
         {
             SFX_slider.value = -80f;
-            AudioMixer.SetFloat("sfx", -40f);
+            AudioMixer.SetFloat("sfx", -80f);
             isSFXMute = true;
         }
         else if (isOn && isSFXMute)
         {
-            SFX_slider.value = -30f;
+            SFX_slider.value = 0f;
             AudioMixer.SetFloat("sfx", 0f);
             isSFXMute = false;
         }
-        BGM_slidertext.text = "배경음 : " + (int)((BGM_slider.value + 80f));
+        SFX_slidertext.text = "효과음 : " + (int)((SFX_slider.value + 80f) * 5.0f / 8.0f);
     }
 
     // 효과음 슬라이더
@@ -1132,9 +1214,23 @@ public class GameManager : MonoBehaviour
             isSFXMute = false;
         }
 
-        AudioMixer.SetFloat("sfx", SFX_slider.value);
+        if (SFX_slider.value <= 0)
+        {
+            AudioMixer.SetFloat("sfx", SFX_slider.value);
+        }
+        else
+        {
+            AudioMixer.SetFloat("sfx", SFX_slider.value / 4.0f);
+        }
 
-        SFX_slidertext.text = "효과음 : " + (int)((SFX_slider.value + 80f));
+        SFX_slidertext.text = "효과음 : " + (int)((SFX_slider.value + 80f) * 5.0f / 8.0f);
+    }
+
+    // 효과음 손 뗐을 때
+    public void OnSFXUp()
+    {
+        SFXPlayer.clip = SFXMusic[3];
+        SFXPlayer.Play();
     }
 
     // 이미지 색깔 변화
